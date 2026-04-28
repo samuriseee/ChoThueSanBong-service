@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { z } from 'zod';
+import { Request, Response } from 'ex';
+import { z } from 'za';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 import { AuthService } from './auth.service';
 import { Role } from '../../entities/enums/Role';
