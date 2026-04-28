@@ -1,0 +1,39 @@
+{
+  "name": "soccer-rental-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lean soccer rental API for teaching purposes with Neon and Cloudinary",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.6.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "pg": "^8.15.6",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.26",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.0.13",
+    "tsc-alias": "^1.8.11",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
