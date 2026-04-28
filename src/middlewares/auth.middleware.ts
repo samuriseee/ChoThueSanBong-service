@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { verifyToken } from '../utils/jwt';
-import { Role } from '../entities/enums/Role';
+import { VaiTro } from '../entities/enums/vai-tro';
 
 export type AuthUser = {
   userId: string;
   email: string;
-  role: Role;
+  role: VaiTro;
 };
 
 export interface AuthenticatedRequest extends Request {
@@ -25,7 +25,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
     req.user = {
       userId: decoded.userId,
       email: decoded.email,
-      role: decoded.role as Role,
+      role: decoded.role as VaiTro,
     };
     return next();
   } catch {
@@ -33,7 +33,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
   }
 };
 
-export const requireRoles = (...roles: Role[]) => {
+export const requireRoles = (...roles: VaiTro[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized' });

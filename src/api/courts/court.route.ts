@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { CourtController } from './court.controller';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { authenticateToken, requireRoles } from '../../middlewares/auth.middleware';
-import { Role } from '../../entities/enums/Role';
+import { Role } from '../../entities/enums/vai-tro';
 import upload from '../../middlewares/upload.middleware';
 
 const router = Router();

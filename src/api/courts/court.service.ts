@@ -2,7 +2,7 @@ import { AppDataSource } from '../../config/database';
 import { AppError } from '../../middlewares/error.middleware';
 import { Court } from '../../entities/Court';
 import { User } from '../../entities/User';
-import { Role } from '../../entities/enums/Role';
+import { Role } from '../../entities/enums/vai-tro';
 
 const courtRepo = () => AppDataSource.getRepository(Court);
 const userRepo = () => AppDataSource.getRepository(User);
