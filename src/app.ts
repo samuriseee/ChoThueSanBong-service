@@ -8,12 +8,21 @@ import courtRouter from './api/courts/court.route';
 import bookingRouter from './api/bookings/booking.route';
 import reviewRouter from './api/reviews/review.route';
 import { notFoundHandler, errorHandler } from './middlewares/error.middleware';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 
 const app = express();
 
 app.use(
   cors({
-    origin: env.clientOrigin,
+    origin: (origin, callback) => {
+      const allowedOrigins = env.clientOrigin.split(',').map((o) => o.trim());
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
@@ -30,6 +39,9 @@ app.use('/api/users', userRouter);
 app.use('/api/courts', courtRouter);
 app.use('/api/bookings', bookingRouter);
 app.use('/api/reviews', reviewRouter);
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(notFoundHandler);
 app.use(errorHandler);

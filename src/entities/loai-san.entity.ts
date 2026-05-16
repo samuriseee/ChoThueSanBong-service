@@ -13,11 +13,11 @@ import { SanBongChiTiet } from "./san-bong-chi-tiet.entity";
 @Entity('LOAISAN')
 export class LoaiSan {
     @PrimaryGeneratedColumn("uuid")
-    maLoaiSan: string;
+    maLoaiSan!: string;
 
-    @Column()
-    tenLoaiSan: string;
+    @Column({ type: "varchar" })
+    tenLoaiSan!: string;
 
     @OneToMany(() => SanBongChiTiet, (sanChiTiet) => sanChiTiet.maLoaiSan)
-    sanBongChiTiets: SanBongChiTiet[];
+    sanBongChiTiets!: SanBongChiTiet[];
 }

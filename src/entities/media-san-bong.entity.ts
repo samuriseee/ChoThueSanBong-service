@@ -20,15 +20,15 @@ export class MediaSanBong extends DateTimeEntity {
     @JoinColumn({ name: "maSanBong" })
     sanBong!: SanBong;
 
-    @Column()
+    @Column({ type: "varchar" })
     loaiMedia!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     ten!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     link!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     mediaId!: string;
 }

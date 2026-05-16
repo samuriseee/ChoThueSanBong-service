@@ -12,11 +12,11 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 @Entity('LOAIHINHDAT')
 export class LoaiHinhDat {
     @PrimaryGeneratedColumn("uuid")
-    maLoaiDat: string;
+    maLoaiDat!: string;
 
-    @Column()
-    tenLoaiDat: string;
+    @Column({ type: "varchar" })
+    tenLoaiDat!: string;
 
-    @Column({ unique: true, nullable: true })
-    code: string; // e.g., "HOUR", "MONTHLY"
+    @Column({ type: "varchar", unique: true, nullable: true })
+    code!: string; // e.g., "HOUR", "MONTHLY"
 }

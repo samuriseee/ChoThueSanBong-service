@@ -24,9 +24,9 @@ export class Chat extends DateTimeEntity{
     @JoinColumn({ name: 'nguoiNhan' })
     nguoiNhan!: NguoiDung;
 
-    @Column()
+    @Column({ type: "varchar" })
     noiDung!: string;
 
-    @Column()
+    @Column({ type: "timestamp" })
     thoiGianGui!: Date;
 }

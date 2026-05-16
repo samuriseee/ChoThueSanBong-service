@@ -21,8 +21,27 @@ import { YeuCauRutTien } from "./yeu-cau-rut-tien.entity";
 import { MediaSanBong } from "./media-san-bong.entity";
 import { MediaSanBongChiTiet } from "./media-san-bong-chi-tiet.entity";
 import { BaoCao } from "./bao-cao.entity";
+import { VaiTro } from "./enums/vai-tro";
 
-export default [
+export {
+    NguoiDung,
+    SanBong,
+    LoaiHinhDat,
+    DatSan,
+    ChiTietDatSan,
+    LoaiSan,
+    SanBongChiTiet,
+    DanhGia,
+    BaoCao,
+    Chat,
+    NapTien,
+    YeuCauRutTien,
+    MediaSanBong,
+    MediaSanBongChiTiet,
+    VaiTro,
+};
+
+export const entities = [
     NguoiDung,
     SanBong,
     LoaiHinhDat,
@@ -38,3 +57,5 @@ export default [
     MediaSanBong,
     MediaSanBongChiTiet,
 ];
+
+export default entities;

@@ -26,7 +26,7 @@ export class SanBongChiTiet extends DateTimeEntity {
     @JoinColumn({ name: 'maLoaiSan' })
     maLoaiSan!: LoaiSan;
 
-    @Column()
+    @Column({ type: "varchar" })
     tenSanChiTiet!: string;
 
     @Column({ type: 'decimal' })

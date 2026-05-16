@@ -23,12 +23,12 @@ export class NapTien extends DateTimeEntity{
     @Column({ type: 'decimal' })
     soTien!: number;
 
-    @Column()
+    @Column({ type: "timestamp" })
     thoiGianNap!: Date;
 
-    @Column()
+    @Column({ type: "varchar" })
     maGiaoDich!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     trangThai!: string;
 }

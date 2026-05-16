@@ -43,6 +43,16 @@ Xem file `.env.example`.
 
 ## Migration với Neon
 
+Core schema được quản lý ở:
+
+- `src/entities/*`: entity definitions
+- `src/config/schema.ts`: tập hợp entity + migration globs cho DataSource
+
+Lưu ý khi chạy migration trên Windows/Git Bash/PowerShell:
+
+- Dự án đã dùng script Node để tránh lỗi biến môi trường shell khi truyền `--name`
+- Chỉ cần dùng `npm run ... --name=...`
+
 Chạy migration đã có sẵn:
 
 ```bash

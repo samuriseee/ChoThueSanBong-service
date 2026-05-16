@@ -9,6 +9,7 @@ const bootstrap = async () => {
 
     app.listen(env.port, () => {
       console.log(`Server is running at http://localhost:${env.port}`);
+      console.log(`Swagger docs at http://localhost:${env.port}/api-docs`);
     });
   } catch (error) {
     console.error('Failed to start server', error);

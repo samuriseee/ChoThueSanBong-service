@@ -1,11 +1,10 @@
-import { AppDataSource } from '../../config/database';
-import { AppError } from '../../middlewares/error.middleware';
-import { Court } from '../../entities/Court';
-import { User } from '../../entities/User';
-import { Role } from '../../entities/enums/vai-tro';
+import { AppDataSource } from '@/config/database';
+import { MediaSanBong, NguoiDung, SanBong, VaiTro } from '@/entities';
+import { AppError } from '@/middlewares/error.middleware';
 
-const courtRepo = () => AppDataSource.getRepository(Court);
-const userRepo = () => AppDataSource.getRepository(User);
+const courtRepo = () => AppDataSource.getRepository(SanBong);
+const userRepo = () => AppDataSource.getRepository(NguoiDung);
+const mediaRepo = () => AppDataSource.getRepository(MediaSanBong);
 
 type CourtInput = {
   name: string;
@@ -21,19 +20,38 @@ type CourtInput = {
 };
 
 export class CourtService {
+  private toCourtDto(court: SanBong) {
+    return {
+      id: court.maSanBong,
+      name: court.tenSan,
+      description: court.moTa,
+      address: court.diaChi,
+      province: court.thanhPho,
+      district: court.quanHuyen,
+      openTime: court.gioMoCua,
+      closeTime: court.gioDongCua,
+      isActive: !court.daBiDisable,
+      isApproved: court.daDuyet,
+      imageUrl: court.hinhAnh,
+      ownerId: court.chuSan?.maNguoiDung,
+      createdAt: court.createdAt,
+      updatedAt: court.updatedAt,
+    };
+  }
+
   async listCourts(filters: { search?: string; province?: string; district?: string; page: number; limit: number }) {
-    const qb = courtRepo().createQueryBuilder('court').leftJoinAndSelect('court.owner', 'owner');
+    const qb = courtRepo().createQueryBuilder('court').leftJoinAndSelect('court.chuSan', 'owner');
 
     if (filters.search) {
-      qb.andWhere('(court.name ILIKE :search OR court.address ILIKE :search)', { search: `%${filters.search}%` });
+      qb.andWhere('(court.tenSan ILIKE :search OR court.diaChi ILIKE :search)', { search: `%${filters.search}%` });
     }
 
     if (filters.province) {
-      qb.andWhere('court.province = :province', { province: filters.province });
+      qb.andWhere('court.thanhPho = :province', { province: filters.province });
     }
 
     if (filters.district) {
-      qb.andWhere('court.district = :district', { district: filters.district });
+      qb.andWhere('court.quanHuyen = :district', { district: filters.district });
     }
 
     const [items, total] = await qb
@@ -43,7 +61,7 @@ export class CourtService {
       .getManyAndCount();
 
     return {
-      items,
+      items: items.map((item) => this.toCourtDto(item)),
       total,
       page: filters.page,
       limit: filters.limit,
@@ -52,75 +70,113 @@ export class CourtService {
 
   async getCourtById(id: string) {
     const court = await courtRepo().findOne({
-      where: { id },
-      relations: { owner: true, bookings: true, reviews: true },
+      where: { maSanBong: id },
+      relations: { chuSan: true, media: true },
     });
 
     if (!court) {
       throw new AppError('Không tìm thấy sân bóng', 404);
     }
 
-    return court;
+    return this.toCourtDto(court);
   }
 
   async createCourt(ownerId: string, input: CourtInput) {
-    const owner = await userRepo().findOne({ where: { id: ownerId } });
+    const owner = await userRepo().findOne({ where: { maNguoiDung: ownerId } });
     if (!owner) {
       throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    if (![Role.OWNER, Role.ADMIN].includes(owner.role)) {
+    if (![VaiTro.CHU_SAN, VaiTro.ADMIN].includes(owner.vaiTro)) {
       throw new AppError('Chỉ chủ sân hoặc admin mới được tạo sân', 403);
     }
 
     const court = courtRepo().create({
-      ...input,
-      pricePerHour: input.pricePerHour.toString(),
-      owner,
-      imageUrls: input.imageUrls || [],
+      tenSan: input.name,
+      moTa: input.description ?? '',
+      diaChi: input.address,
+      quanHuyen: input.district ?? '',
+      thanhPho: input.province ?? '',
+      gioMoCua: input.openTime ?? '06:00:00',
+      gioDongCua: input.closeTime ?? '23:00:00',
+      chuSan: owner,
+      hinhAnh: input.imageUrls?.[0],
     });
 
     await courtRepo().save(court);
-    return court;
+
+    if (input.imageUrls?.length) {
+      const medias = input.imageUrls.map((link, index) =>
+        mediaRepo().create({
+          sanBong: court,
+          loaiMedia: 'image',
+          ten: `court-image-${index + 1}`,
+          link,
+          mediaId: link,
+        })
+      );
+      await mediaRepo().save(medias);
+    }
+
+    return this.toCourtDto(court);
   }
 
   async updateCourt(ownerId: string, courtId: string, input: Partial<CourtInput>) {
-    const court = await courtRepo().findOne({ where: { id: courtId }, relations: { owner: true } });
+    const court = await courtRepo().findOne({ where: { maSanBong: courtId }, relations: { chuSan: true } });
     if (!court) {
       throw new AppError('Không tìm thấy sân bóng', 404);
     }
 
-    const owner = await userRepo().findOne({ where: { id: ownerId } });
+    const owner = await userRepo().findOne({ where: { maNguoiDung: ownerId } });
     if (!owner) {
       throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    if (owner.role !== Role.ADMIN && court.owner.id !== ownerId) {
+    if (owner.vaiTro !== VaiTro.ADMIN && court.chuSan.maNguoiDung !== ownerId) {
       throw new AppError('Bạn không có quyền cập nhật sân này', 403);
     }
 
-    Object.assign(court, {
-      ...input,
-      ...(typeof input.pricePerHour === 'number' ? { pricePerHour: input.pricePerHour.toString() } : {}),
-      ...(input.imageUrls ? { imageUrls: input.imageUrls } : {}),
-    });
+    if (typeof input.name === 'string') {
+      court.tenSan = input.name;
+    }
+    if (typeof input.description === 'string') {
+      court.moTa = input.description;
+    }
+    if (typeof input.address === 'string') {
+      court.diaChi = input.address;
+    }
+    if (typeof input.district === 'string') {
+      court.quanHuyen = input.district;
+    }
+    if (typeof input.province === 'string') {
+      court.thanhPho = input.province;
+    }
+    if (typeof input.openTime === 'string') {
+      court.gioMoCua = input.openTime;
+    }
+    if (typeof input.closeTime === 'string') {
+      court.gioDongCua = input.closeTime;
+    }
+    if (input.imageUrls?.length) {
+      court.hinhAnh = input.imageUrls[0];
+    }
 
     await courtRepo().save(court);
-    return court;
+    return this.toCourtDto(court);
   }
 
   async deleteCourt(ownerId: string, courtId: string) {
-    const court = await courtRepo().findOne({ where: { id: courtId }, relations: { owner: true } });
+    const court = await courtRepo().findOne({ where: { maSanBong: courtId }, relations: { chuSan: true } });
     if (!court) {
       throw new AppError('Không tìm thấy sân bóng', 404);
     }
 
-    const owner = await userRepo().findOne({ where: { id: ownerId } });
+    const owner = await userRepo().findOne({ where: { maNguoiDung: ownerId } });
     if (!owner) {
       throw new AppError('Không tìm thấy người dùng', 404);
     }
 
-    if (owner.role !== Role.ADMIN && court.owner.id !== ownerId) {
+    if (owner.vaiTro !== VaiTro.ADMIN && court.chuSan.maNguoiDung !== ownerId) {
       throw new AppError('Bạn không có quyền xóa sân này', 403);
     }
 

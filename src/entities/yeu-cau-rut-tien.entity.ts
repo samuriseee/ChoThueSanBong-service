@@ -26,24 +26,24 @@ export class YeuCauRutTien extends DateTimeEntity {
     @JoinColumn({ name: "maNguoiDung" })
     maNguoiDung!: NguoiDung;
 
-    @Column()
+    @Column({ type: "timestamp" })
     thoiGianRut!: Date;
 
-    @Column()
+    @Column({ type: "varchar" })
     maGiaoDich!: string;
 
-    @Column({ nullable: true })
+    @Column({ type: "varchar", nullable: true })
     moTa?: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     trangThai!: string;
 
     @Column({ type: "decimal" })
     soTien!: number;
 
-    @Column()
+    @Column({ type: "varchar" })
     tenNganHang!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     soTaiKhoan!: string;
 }

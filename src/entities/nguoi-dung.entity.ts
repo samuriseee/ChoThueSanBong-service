@@ -13,40 +13,42 @@ import { VaiTro } from "./enums/vai-tro";
 
 @Entity("NGUOIDUNG")
 export class NguoiDung extends DateTimeEntity {
-    @PrimaryGeneratedColumn("uuid")
-    maNguoiDung!: string;
+  @PrimaryGeneratedColumn("uuid")
+  maNguoiDung!: string;
 
-    @Column({ nullable: true })
-    avatar!: string;
+  @Column({ type: "varchar", nullable: true })
+  avatar!: string;
 
-    @Column()
-    hoTen!: string;
+  @Column({
+    type: "varchar",
+  })
+  hoTen!: string;
 
-    @Column({ unique: true })
-    email!: string;
+  @Column({ type: "varchar", unique: true })
+  email!: string;
 
-    @Column()
-    soDienThoai!: string;
+  @Column({ type: "varchar" })
+  soDienThoai!: string;
 
-    @Column({ default: false })
-    daXacThuc!: boolean;
+  @Column({ type: "boolean", default: false })
+  daXacThuc!: boolean;
 
-    @Column({ type: "varchar", nullable: true })
-    maXacThuc!: string | null;
+  @Column({ type: "varchar", nullable: true })
+  maXacThuc!: string | null;
 
-    @Column()
-    matKhau!: string;
+  @Column({ type: "varchar" })
+  matKhau!: string;
 
-    @Column({ default: false })
-    taiKhoanGoogle!: boolean;
+  @Column({ type: "boolean", default: false })
+  taiKhoanGoogle!: boolean;
 
-    @Column({
-        type: "enum",
-        enum: VaiTro,
-        default: VaiTro.NGUOI_THUE,
-    })
-    vaiTro!: VaiTro;
+  @Column({
+    type: "enum",
+    enum: VaiTro,
+    default: VaiTro.NGUOI_THUE,
+  })
+  vaiTro!: VaiTro;
 
-    @Column({ type: "decimal", default: 0 })
-    soDuTaiKhoan!: number;
+  @Column({ type: "decimal", default: 0 })
+  soDuTaiKhoan!: number;
 }

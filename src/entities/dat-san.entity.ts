@@ -21,10 +21,10 @@ export class DatSan extends DateTimeEntity {
     @JoinColumn({ name: "nguoiThue" })
     nguoiThue!: NguoiDung;
 
-    @Column()
+    @Column({ type: "timestamp" })
     ngayDat!: Date;
 
-    @Column()
+    @Column({ type: "timestamp" })
     ngayThanhToan!: Date;
 
     @Column({ type: "decimal" })

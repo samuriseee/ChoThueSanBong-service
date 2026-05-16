@@ -28,9 +28,9 @@ export class DanhGia extends DateTimeEntity{
     @Column({ type: 'int' })
     diemSo!: number;
 
-    @Column()
+    @Column({ type: "varchar" })
     binhLuan!: string;
 
-    @Column()
+    @Column({ type: "timestamp" })
     thoiGianDanhGia!: Date;
 }

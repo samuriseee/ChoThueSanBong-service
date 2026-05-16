@@ -8,33 +8,32 @@
  */
 
 import {
-    Column,
-    Entity,
-    PrimaryGeneratedColumn,
-    ManyToOne,
-    JoinColumn,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
 import { NguoiDung } from "./nguoi-dung.entity";
 import { SanBong } from "./san-bong.entity";
 import { DateTimeEntity } from "./datetime.entity";
 
-
 @Entity("BAOCAO")
 export class BaoCao extends DateTimeEntity {
-    @PrimaryGeneratedColumn("uuid")
-    maBaoCao!: string;
+  @PrimaryGeneratedColumn("uuid")
+  maBaoCao!: string;
 
-    @ManyToOne(() => NguoiDung)
-    @JoinColumn({ name: "nguoiThue" })
-    nguoiThue!: NguoiDung;
+  @ManyToOne(() => NguoiDung)
+  @JoinColumn({ name: "nguoiThue" })
+  nguoiThue!: NguoiDung;
 
-    @ManyToOne(() => SanBong)
-    @JoinColumn({ name: "maSanBong" })
-    maSanBong!: SanBong;
+  @ManyToOne(() => SanBong)
+  @JoinColumn({ name: "maSanBong" })
+  maSanBong!: SanBong;
 
-    @Column()
-    lyDo!: string;
+  @Column({ type: "varchar" })
+  lyDo!: string;
 
-    @Column()
-    thoiGianBaoCao!: Date;
+  @Column({ type: "timestamp" })
+  thoiGianBaoCao!: Date;
 }

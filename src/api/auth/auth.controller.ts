@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 import { AuthService } from './auth.service';
-import { Role } from '../../entities/enums/vai-tro';
+
+const roleSchema = z.enum(['ADMIN', 'OWNER', 'USER', 'admin', 'chuSan', 'nguoiThue']);
 
 const authService = new AuthService();
 
@@ -11,7 +12,7 @@ const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   phone: z.string().optional(),
-  role: z.nativeEnum(Role).optional(),
+  role: roleSchema.optional(),
 });
 
 const loginSchema = z.object({

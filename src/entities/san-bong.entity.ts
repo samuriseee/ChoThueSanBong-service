@@ -21,28 +21,28 @@ export class SanBong extends DateTimeEntity {
     @JoinColumn({ name: 'chuSan' })
     chuSan!: NguoiDung;
 
-    @Column()
+    @Column({ type: "varchar" })
     tenSan!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     diaChi!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     quanHuyen!: string;
 
-    @Column()
+    @Column({ type: "varchar" })
     thanhPho!: string;
 
-    @Column({ type: 'double', nullable: true })
+    @Column({ type: 'double precision', nullable: true })
     viDo!: number;
 
-    @Column({ type: 'double', nullable: true })
+    @Column({ type: 'double precision', nullable: true })
     kinhDo!: number;
 
-    @Column()
+    @Column({ type: "varchar" })
     moTa!: string;
 
-    @Column({ nullable: true })
+    @Column({ type: "varchar", nullable: true })
     hinhAnh?: string;
 
     @Column({ type: 'boolean', default: false })

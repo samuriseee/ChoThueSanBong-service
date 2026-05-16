@@ -7,7 +7,13 @@
  * #
  */
 
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { DatSan } from "./dat-san.entity";
 import { SanBong } from "./san-bong.entity";
 import { LoaiHinhDat } from "./loai-hinh-dat.entity";
@@ -17,40 +23,40 @@ import { SanBongChiTiet } from "./san-bong-chi-tiet.entity";
 
 @Entity("CHITIETDATSAN")
 export class ChiTietDatSan extends DateTimeEntity {
-    @PrimaryGeneratedColumn("uuid")
-    maChiTietDatSan!: string;
+  @PrimaryGeneratedColumn("uuid")
+  maChiTietDatSan!: string;
 
-    @ManyToOne(() => DatSan)
-    @JoinColumn({ name: "maDatSan" })
-    maDatSan!: DatSan;
+  @ManyToOne(() => DatSan)
+  @JoinColumn({ name: "maDatSan" })
+  maDatSan!: DatSan;
 
-    @ManyToOne(() => SanBongChiTiet)
-    @JoinColumn({ name: "maSanChiTiet" })
-    maSanChiTiet!: SanBongChiTiet;
+  @ManyToOne(() => SanBongChiTiet)
+  @JoinColumn({ name: "maSanChiTiet" })
+  maSanChiTiet!: SanBongChiTiet;
 
-    @ManyToOne(() => NguoiDung)
-    @JoinColumn({ name: "nguoiThue" })
-    nguoiThue!: NguoiDung;
+  @ManyToOne(() => NguoiDung)
+  @JoinColumn({ name: "nguoiThue" })
+  nguoiThue!: NguoiDung;
 
-    @ManyToOne(() => LoaiHinhDat)
-    @JoinColumn({ name: "maLoaiDat" })
-    maLoaiDat!: LoaiHinhDat;
+  @ManyToOne(() => LoaiHinhDat)
+  @JoinColumn({ name: "maLoaiDat" })
+  maLoaiDat!: LoaiHinhDat;
 
-    @Column()
-    gioBatDau!: string;
+  @Column({ type: "varchar" })
+  gioBatDau!: string;
 
-    @Column()
-    gioKetThuc!: string;
+  @Column({ type: "varchar" })
+  gioKetThuc!: string;
 
-    @Column({ type: "boolean", default: false })
-    coVanDe!: boolean;
+  @Column({ type: "boolean", default: false })
+  coVanDe!: boolean;
 
-    @Column()
-    trangThaiDatSan!: string;
+  @Column({ type: "varchar" })
+  trangThaiDatSan!: string;
 
-    @Column({ type: "decimal", default: 0 })
-    soTien!: number;
+  @Column({ type: "decimal", default: 0 })
+  soTien!: number;
 
-    @Column({ type: "boolean", default: false })
-    daGuiThongBao!: boolean;
+  @Column({ type: "boolean", default: false })
+  daGuiThongBao!: boolean;
 }

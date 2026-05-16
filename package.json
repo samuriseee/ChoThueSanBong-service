@@ -9,10 +9,10 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "typeorm-ts-node-commonjs -d src/config/database.ts migration:run",
-    "db:migrate:revert": "typeorm-ts-node-commonjs -d src/config/database.ts migration:revert",
-    "db:migrate:generate": "typeorm-ts-node-commonjs -d src/config/database.ts migration:generate src/migrations/$npm_config_name",
-    "db:migrate:create": "typeorm-ts-node-commonjs migration:create src/migrations/$npm_config_name"
+    "db:migrate": "node scripts/migration-run.cjs",
+    "db:migrate:revert": "node scripts/migration-revert.cjs",
+    "db:migrate:generate": "node scripts/migration-generate.cjs",
+    "db:migrate:create": "node scripts/migration-create.cjs"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -25,6 +25,8 @@
     "multer": "^2.0.2",
     "pg": "^8.15.6",
     "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.26",
     "zod": "^4.0.17"
   },
@@ -36,6 +38,8 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.0.13",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "tsc-alias": "^1.8.11",
     "tsx": "^4.20.3",
     "typeorm-ts-node-commonjs": "^0.3.20",

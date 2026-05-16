@@ -9,29 +9,28 @@
 
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 import { SanBongChiTiet } from "./san-bong-chi-tiet.entity";
-import { DateTimeEntity } from "./datetime.entity
-";
+import { DateTimeEntity } from "./datetime.entity";
 
 @Entity('MEDIA_SANBONGCHITIET')
 export class MediaSanBongChiTiet extends DateTimeEntity{
     @PrimaryGeneratedColumn("uuid")
-    maMedia: string;
+    maMedia!: string;
 
     @ManyToOne(() => SanBongChiTiet, (sanBongChiTiet) => sanBongChiTiet.media, {
     onDelete: 'CASCADE',
     })
     @JoinColumn({ name: 'maSanBongChiTiet' })
-    maSanBongChiTiet: SanBongChiTiet;
+    maSanBongChiTiet!: SanBongChiTiet;
 
-    @Column()
-    loaiMedia: string;
+    @Column({ type: "varchar" })
+    loaiMedia!: string;
 
-    @Column()
-    ten: string;
+    @Column({ type: "varchar" })
+    ten!: string;
 
-    @Column()
-    link: string;
+    @Column({ type: "varchar" })
+    link!: string;
 
-    @Column()
-    mediaId: string;
+    @Column({ type: "varchar" })
+    mediaId!: string;
 }
