@@ -41,6 +41,32 @@ npm run dev
 
 Xem file `.env.example`.
 
+## Migration với Neon
+
+Chạy migration đã có sẵn:
+
+```bash
+npm run db:migrate
+```
+
+Tạo migration mới từ thay đổi entity:
+
+```bash
+npm run db:migrate:generate --name=init-courts
+```
+
+Tạo migration rỗng:
+
+```bash
+npm run db:migrate:create --name=add-index-booking-date
+```
+
+Hoàn tác migration gần nhất:
+
+```bash
+npm run db:migrate:revert
+```
+
 ## Ghi chú cấu trúc
 
 - `src/app.ts`: cấu hình middleware và routes

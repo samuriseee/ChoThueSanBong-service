@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 import { AuthService } from './auth.service';
-import { Role } from '../../entities/enums/Role';
+import { Role } from '../../entities/enums/vai-tro';
 
 const authService = new AuthService();
 

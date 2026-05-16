@@ -1,6 +1,6 @@
 import { AppDataSource } from '../../config/database';
 import { User } from '../../entities/User';
-import { Role } from '../../entities/enums/Role';
+import { Role } from '../../entities/enums/vai-tro';
 import { AppError } from '../../middlewares/error.middleware';
 import { comparePassword, hashPassword } from '../../utils/password';
 import { signAccessToken } from '../../utils/jwt';

@@ -8,7 +8,11 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "typeorm-ts-node-commonjs -d src/config/database.ts migration:run",
+    "db:migrate:revert": "typeorm-ts-node-commonjs -d src/config/database.ts migration:revert",
+    "db:migrate:generate": "typeorm-ts-node-commonjs -d src/config/database.ts migration:generate src/migrations/$npm_config_name",
+    "db:migrate:create": "typeorm-ts-node-commonjs migration:create src/migrations/$npm_config_name"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -34,6 +38,7 @@
     "@types/node": "^24.0.13",
     "tsc-alias": "^1.8.11",
     "tsx": "^4.20.3",
+    "typeorm-ts-node-commonjs": "^0.3.20",
     "typescript": "^5.8.3"
   }
 }
