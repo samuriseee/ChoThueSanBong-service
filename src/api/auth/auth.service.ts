@@ -22,18 +22,6 @@ type LoginInput = {
   password: string;
 };
 
-const toClientRole = (role: VaiTro): ClientRole => {
-  if (role === VaiTro.ADMIN) {
-    return 'ADMIN';
-  }
-
-  if (role === VaiTro.CHU_SAN) {
-    return 'OWNER';
-  }
-
-  return 'USER';
-};
-
 const toVaiTro = (role?: VaiTro | ClientRole | string): VaiTro => {
   if (!role) {
     return VaiTro.NGUOI_THUE;
@@ -81,7 +69,7 @@ export class AuthService {
     if (!user) {
       throw new AppError('Email hoặc mật khẩu không đúng', 400);
     }
-
+    console.log("user:", user)
     const isValid = await comparePassword(input.password, user.matKhau);
     if (!isValid) {
       throw new AppError('Email hoặc mật khẩu không đúng', 400);
@@ -110,7 +98,7 @@ export class AuthService {
       fullName: user.hoTen,
       email: user.email,
       phone: user.soDienThoai,
-      role: toClientRole(user.vaiTro),
+      role: user.vaiTro,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       avatar: user.avatar,
