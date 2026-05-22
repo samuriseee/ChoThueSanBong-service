@@ -1,10 +1,11 @@
 import { AppDataSource } from '@/config/database';
-import { NguoiDung, VaiTro } from '@/entities';
+import { NapTien, NguoiDung, VaiTro } from '@/entities';
 import { AppError } from '@/middlewares/error.middleware';
 import { signAccessToken } from '@/utils/jwt';
 import { comparePassword, hashPassword } from '@/utils/password';
 
 const userRepo = () => AppDataSource.getRepository(NguoiDung);
+const napTienRepo = () => AppDataSource.getRepository(NapTien);
 
 type ClientRole = 'ADMIN' | 'OWNER' | 'USER';
 
@@ -62,7 +63,7 @@ export class AuthService {
       soDienThoai: input.phone ?? '',
       vaiTro: toVaiTro(input.role),
       matKhau: await hashPassword(input.password),
-    });
+    })
 
     await userRepo().save(user);
 

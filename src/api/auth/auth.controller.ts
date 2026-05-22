@@ -22,7 +22,7 @@ const loginSchema = z.object({
 
 export const AuthController = {
   async register(req: Request, res: Response) {
-    const payload = registerSchema.parse(req.body);
+    const payload = registerSchema.parse(req.body); // res.body: { fullName, email, password, phone?, role? }
     const result = await authService.register(payload);
     return res.status(201).json({ message: 'Đăng ký thành công', data: result });
   },
