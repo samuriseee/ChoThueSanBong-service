@@ -68,6 +68,47 @@ export class CourtService {
     };
   }
 
+  async getMyCourtsByOwnerId(
+  ownerId: string,
+  options?: { page?: number; limit?: number; search?: string }) 
+  {
+  // Kiểm tra chủ sân có tồn tại không
+  const owner = await userRepo().findOne({ where: { maNguoiDung: ownerId } });
+  if (!owner) {
+    throw new AppError('Không tìm thấy người dùng', 404);
+  }
+
+  const page = options?.page && options.page > 0 ? options.page : 1;
+  const limit = options?.limit && options.limit > 0 ? options.limit : 0;
+
+  const qb = courtRepo()
+    .createQueryBuilder('court')
+    .leftJoinAndSelect('court.chuSan', 'owner')
+    .where('owner.maNguoiDung = :ownerId', { ownerId });
+
+  if (options?.search) {
+    qb.andWhere('(court.tenSan ILIKE :search OR court.diaChi ILIKE :search)', {
+      search: `%${options.search}%`,
+    });
+  }
+
+  qb.orderBy('court.createdAt', 'DESC');
+
+  if (limit > 0) {
+    const [items, total] = await qb.skip((page - 1) * limit).take(limit).getManyAndCount();
+    return {
+      items: items.map((court) => this.toCourtDto(court)),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  const items = await qb.getMany();
+  return items.map((court) => this.toCourtDto(court));
+}
+
+  //Xem chi tiết một sân bóng cụ thể
   async getCourtById(id: string) {
     const court = await courtRepo().findOne({
       where: { maSanBong: id },
