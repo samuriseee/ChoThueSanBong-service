@@ -84,4 +84,21 @@ export const CourtController = {
     const result = await courtService.deleteCourt(userId, req.params.id as string);
     return res.status(200).json({ message: 'Xóa sân bóng thành công', data: result });
   },
+
+  async getMyCourts(req: AuthenticatedRequest, res: Response) {
+  // Lấy userId từ token đã được xác thực trong middleware
+  const userId = req.user?.userId;
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const page = Number(req.query.page || 1);
+  const limit = Number(req.query.limit || 0); // 0 = không phân trang
+  const search = req.query.search as string | undefined;
+
+  // Gọi service để lấy danh sách sân
+  const result = await courtService.getMyCourtsByOwnerId(userId, { page, limit, search });
+
+  return res.status(200).json({ data: result });
+},
 };
