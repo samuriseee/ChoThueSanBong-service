@@ -19,6 +19,13 @@ const courtSchema = z.object({
   closeTime: z.string().optional(),
 });
 
+const subfieldSchema = z.object({
+  typeId: z.string().uuid(),
+  name: z.string().min(2),
+  morningPrice: z.coerce.number().positive(),
+  eveningPrice: z.coerce.number().positive(),
+});
+
 export const CourtController = {
   async list(req: AuthenticatedRequest, res: Response) {
     const page = Number(req.query.page || 1);
@@ -86,19 +93,69 @@ export const CourtController = {
   },
 
   async getMyCourts(req: AuthenticatedRequest, res: Response) {
-  // Lấy userId từ token đã được xác thực trong middleware
-  const userId = req.user?.userId;
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+    // Lấy userId từ token đã được xác thực trong middleware
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-  const page = Number(req.query.page || 1);
-  const limit = Number(req.query.limit || 0); // 0 = không phân trang
-  const search = req.query.search as string | undefined;
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 0); // 0 = không phân trang
+    const search = req.query.search as string | undefined;
 
-  // Gọi service để lấy danh sách sân
-  const result = await courtService.getMyCourtsByOwnerId(userId, { page, limit, search });
+    // Gọi service để lấy danh sách sân
+    const result = await courtService.getMyCourtsByOwnerId(userId, { page, limit, search });
 
-  return res.status(200).json({ data: result });
-},
+    return res.status(200).json({ data: result });
+  },
+
+  async getMySubfields(req: AuthenticatedRequest, res: Response) {
+    const ownerId = req.user?.userId;
+    if (!ownerId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const courtId = String(req.params.courtId);
+    const result = await courtService.getSubfieldsByCourtId(ownerId, courtId);
+
+    return res.status(200).json({ data: result });
+  },
+
+  async createSubfield(req: AuthenticatedRequest, res: Response) {
+    const ownerId = req.user?.userId;
+    if (!ownerId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const courtId = String(req.params.courtId);
+    const payload = subfieldSchema.parse(req.body);
+    const result = await courtService.createSubfield(ownerId, courtId, payload);
+
+    return res.status(201).json({ message: 'Tạo sân con thành công', data: result });
+  },
+
+  async updateSubfield(req: AuthenticatedRequest, res: Response) {
+    const ownerId = req.user?.userId;
+    if (!ownerId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const subfieldId = String(req.params.subfieldId);
+    const payload = subfieldSchema.partial().parse(req.body);
+    const result = await courtService.updateSubfield(ownerId, subfieldId, payload);
+
+    return res.status(200).json({ message: 'Cập nhật sân con thành công', data: result });
+  },
+
+  async deleteSubfield(req: AuthenticatedRequest, res: Response) {
+    const ownerId = req.user?.userId;
+    if (!ownerId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const subfieldId = String(req.params.subfieldId);
+    const result = await courtService.deleteSubfield(ownerId, subfieldId);
+
+    return res.status(200).json({ message: 'Xóa sân con thành công', data: result });
+  },
 };

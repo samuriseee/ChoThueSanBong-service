@@ -1,10 +1,11 @@
 import { AppDataSource } from '@/config/database';
-import { MediaSanBong, NguoiDung, SanBong, VaiTro } from '@/entities';
+import { LoaiSan, MediaSanBong, NguoiDung, SanBong, SanBongChiTiet, VaiTro } from '@/entities';
 import { AppError } from '@/middlewares/error.middleware';
 
 const courtRepo = () => AppDataSource.getRepository(SanBong);
 const userRepo = () => AppDataSource.getRepository(NguoiDung);
 const mediaRepo = () => AppDataSource.getRepository(MediaSanBong);
+const subfieldRepo = () => AppDataSource.getRepository(SanBongChiTiet);
 
 type CourtInput = {
   name: string;
@@ -17,6 +18,13 @@ type CourtInput = {
   openTime?: string;
   closeTime?: string;
   imageUrls?: string[];
+};
+
+type SubfieldInput = {
+  typeId: string;
+  name: string;
+  morningPrice: number;
+  eveningPrice: number;
 };
 
 export class CourtService {
@@ -69,44 +77,44 @@ export class CourtService {
   }
 
   async getMyCourtsByOwnerId(
-  ownerId: string,
-  options?: { page?: number; limit?: number; search?: string }) 
-  {
-  // Kiểm tra chủ sân có tồn tại không
-  const owner = await userRepo().findOne({ where: { maNguoiDung: ownerId } });
-  if (!owner) {
-    throw new AppError('Không tìm thấy người dùng', 404);
+    ownerId: string,
+    options?: { page?: number; limit?: number; search?: string }
+  ) {
+    // Kiểm tra chủ sân có tồn tại không
+    const owner = await userRepo().findOne({ where: { maNguoiDung: ownerId } });
+    if (!owner) {
+      throw new AppError('Không tìm thấy người dùng', 404);
+    }
+
+    const page = options?.page && options.page > 0 ? options.page : 1;
+    const limit = options?.limit && options.limit > 0 ? options.limit : 0;
+
+    const qb = courtRepo()
+      .createQueryBuilder('court')
+      .leftJoinAndSelect('court.chuSan', 'owner')
+      .where('owner.maNguoiDung = :ownerId', { ownerId });
+
+    if (options?.search) {
+      qb.andWhere('(court.tenSan ILIKE :search OR court.diaChi ILIKE :search)', {
+        search: `%${options.search}%`,
+      });
+    }
+
+    qb.orderBy('court.createdAt', 'DESC');
+
+    if (limit > 0) {
+      const [items, total] = await qb.skip((page - 1) * limit).take(limit).getManyAndCount();
+      return {
+        items: items.map((court) => this.toCourtDto(court)),
+        total,
+        page,
+        limit,
+      };
+    }
+
+    const items = await qb.getMany();
+    return items.map((court) => this.toCourtDto(court));
   }
-
-  const page = options?.page && options.page > 0 ? options.page : 1;
-  const limit = options?.limit && options.limit > 0 ? options.limit : 0;
-
-  const qb = courtRepo()
-    .createQueryBuilder('court')
-    .leftJoinAndSelect('court.chuSan', 'owner')
-    .where('owner.maNguoiDung = :ownerId', { ownerId });
-
-  if (options?.search) {
-    qb.andWhere('(court.tenSan ILIKE :search OR court.diaChi ILIKE :search)', {
-      search: `%${options.search}%`,
-    });
-  }
-
-  qb.orderBy('court.createdAt', 'DESC');
-
-  if (limit > 0) {
-    const [items, total] = await qb.skip((page - 1) * limit).take(limit).getManyAndCount();
-    return {
-      items: items.map((court) => this.toCourtDto(court)),
-      total,
-      page,
-      limit,
-    };
-  }
-
-  const items = await qb.getMany();
-  return items.map((court) => this.toCourtDto(court));
-}
 
   //Xem chi tiết một sân bóng cụ thể
   async getCourtById(id: string) {
@@ -224,4 +232,122 @@ export class CourtService {
     await courtRepo().remove(court);
     return { deleted: true };
   }
+
+  // Chuyển đổi sân con sang DTO
+  private toSubfieldDto(subfield: SanBongChiTiet) {
+    return {
+      id: subfield.maSanChiTiet,
+      courtId: subfield.maSanBong?.maSanBong,
+      typeId: subfield.maLoaiSan?.maLoaiSan,
+      name: subfield.tenSanChiTiet,
+      morningPrice: Number(subfield.giaThueBuoiSang),
+      eveningPrice: Number(subfield.giaThueBuoiToi),
+      images: subfield.media?.map((m) => m.link) ?? [],
+      createdAt: subfield.createdAt,
+      updatedAt: subfield.updatedAt,
+    };
+  }
+
+  //Xem danh sách sân con theo sân của chủ sân
+  async getSubfieldsByCourtId(ownerId: string, courtId: string) {
+    const court = await courtRepo().findOne({
+      where: { maSanBong: courtId },
+      relations: { chuSan: true },
+    });
+
+    if (!court) {
+      throw new AppError('Không tìm thấy sân', 404);
+    }
+
+    if (court.chuSan.maNguoiDung !== ownerId) {
+      throw new AppError('Bạn không có quyền truy cập', 403);
+    }
+
+    const subfields = await subfieldRepo().find({
+      where: { maSanBong: { maSanBong: courtId } },
+      relations: { maLoaiSan: true, media: true, maSanBong: true },
+      order: { createdAt: 'DESC' },
+    });
+
+    return subfields.map((item) => this.toSubfieldDto(item));
+  }
+
+  //Tạo sân con mới cho sân của chủ sân
+  async createSubfield(ownerId: string, courtId: string, input: SubfieldInput) {
+    const court = await courtRepo().findOne({
+      where: { maSanBong: courtId },
+      relations: { chuSan: true },
+    });
+
+    if (!court) {
+      throw new AppError('Không tìm thấy sân', 404);
+    }
+
+    if (court.chuSan.maNguoiDung !== ownerId) {
+      throw new AppError('Bạn không có quyền truy cập', 403);
+    }
+
+    const subfield = subfieldRepo().create({
+      maSanBong: court,
+      maLoaiSan: { maLoaiSan: input.typeId } as LoaiSan,
+      tenSanChiTiet: input.name,
+      giaThueBuoiSang: input.morningPrice,
+      giaThueBuoiToi: input.eveningPrice,
+    });
+
+    await subfieldRepo().save(subfield);
+    return this.toSubfieldDto(subfield);
+  }
+
+  //Cập nhật sân con
+  async updateSubfield(ownerId: string, subfieldId: string, input: Partial<SubfieldInput>) {
+    const subfield = await subfieldRepo().findOne({
+      where: { maSanChiTiet: subfieldId },
+      relations: { maSanBong: { chuSan: true }, maLoaiSan: true, media: true },
+    });
+
+    if (!subfield) {
+      throw new AppError('Không tìm thấy sân con', 404);
+    }
+
+    if (subfield.maSanBong.chuSan.maNguoiDung !== ownerId) {
+      throw new AppError('Bạn không có quyền truy cập', 403);
+    }
+
+    if (typeof input.name === 'string') {
+      subfield.tenSanChiTiet = input.name;
+    }
+    if (typeof input.morningPrice === 'number') {
+      subfield.giaThueBuoiSang = input.morningPrice;
+    }
+    if (typeof input.eveningPrice === 'number') {
+      subfield.giaThueBuoiToi = input.eveningPrice;
+    }
+    if (typeof input.typeId === 'string') {
+      subfield.maLoaiSan = { maLoaiSan: input.typeId } as LoaiSan;
+    }
+
+    await subfieldRepo().save(subfield);
+    return this.toSubfieldDto(subfield);
+  }
+
+  //Xóa sân con của chủ sân
+  async deleteSubfield(ownerId: string, subfieldId: string) {
+    const subfield = await subfieldRepo().findOne({
+      where: { maSanChiTiet: subfieldId },
+      relations: { maSanBong: { chuSan: true } },
+    });
+
+    if (!subfield) {
+      throw new AppError('Không tìm thấy sân con', 404);
+    }
+
+    if (subfield.maSanBong.chuSan.maNguoiDung !== ownerId) {
+      throw new AppError('Bạn không có quyền truy cập', 403);
+    }
+
+    await subfieldRepo().remove(subfield);
+    return { deleted: true };
+  }
+
 }
